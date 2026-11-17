@@ -34,6 +34,10 @@ function App() {
   const [logoutProgress, setLogoutProgress] = useState(0);
   const [logoutStatusText, setLogoutStatusText] = useState('Closing session...');
 
+  useEffect(() => {
+    document.title = 'ISA LeadFlow-Dashboard';
+  }, []);
+
   // Requirement 4 & 9: Global 30-second heartbeat and disconnect beacon for authenticated user
   useEffect(() => {
     if (!currentUser) return;
