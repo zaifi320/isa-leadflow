@@ -10,7 +10,7 @@ import TopLeadByChart from '../components/TopLeadByChart.jsx';
 import RecentLeadsTable from '../components/RecentLeadsTable.jsx';
 import EmployeeTrendChart from '../components/EmployeeTrendChart.jsx';
 import StateLeadsTable from '../components/StateLeadsTable.jsx';
-import { Users, Home, User, Calendar, Phone, AlertCircle } from 'lucide-react';
+import { Users, Home, User, Calendar, Phone, AlertCircle, Info } from 'lucide-react';
 import { getKPIs, clearClientCache } from '../api/dashboard';
 
 const INITIAL_KPIS = [
@@ -189,7 +189,7 @@ export default function Dashboard({ currentView = 'dashboard', onNavigate, curre
           </div>
 
           {/* Row 4: Leads by State + Top Lead By + Recent Leads Table */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-9 gap-4 pb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-9 gap-4 pb-2">
             <div className="col-span-1 lg:col-span-3 min-h-[270px]">
               <LeadsByStateChart dateRange={dateRange} refreshTrigger={refreshKey} />
             </div>
@@ -198,6 +198,27 @@ export default function Dashboard({ currentView = 'dashboard', onNavigate, curre
             </div>
             <div className="col-span-1 sm:col-span-2 lg:col-span-3 min-h-[270px]">
               <RecentLeadsTable dateRange={dateRange} refreshTrigger={refreshKey} />
+            </div>
+          </div>
+
+          {/* Data Source Indicator */}
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-2">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 shadow-xs shrink-0">
+                <Info size={18} className="text-blue-600" />
+              </div>
+              <div>
+                <div className="text-[10px] sm:text-[11px] font-bold text-slate-400 tracking-wider uppercase">
+                  Data Source
+                </div>
+                <div className="text-xs sm:text-sm font-bold text-slate-800">
+                  Discord Channel – ISA Leads Messages
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-xs bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-3.5 py-1.5 rounded-full font-semibold self-start sm:self-auto shrink-0">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Live Sync Active
             </div>
           </div>
         </div>
