@@ -4,7 +4,7 @@ import {
   RefreshCw, CheckCircle2, XCircle, Clock, Database, FileSpreadsheet,
   Calendar, ChevronDown, ChevronLeft, ChevronRight, Search, AlertCircle,
   TrendingUp, UserPlus, FileText, Check, X, ArrowUpRight, ArrowDownRight,
-  ShieldCheck, Info, ExternalLink, Zap, Lock, ShieldAlert, ArrowLeft
+  ShieldCheck, Info, ExternalLink, Zap, Lock, ShieldAlert, ArrowLeft, Menu
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
@@ -177,6 +177,7 @@ export default function DataSyncHistory({ currentView = 'sync', onNavigate, curr
 
   // Filters & State
   const [dateRange, setDateRange] = useState('30d');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dateDropdownOpen, setDateDropdownOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -378,12 +379,14 @@ export default function DataSyncHistory({ currentView = 'sync', onNavigate, curr
 
   return (
     <div className="flex h-screen bg-[#f8fafc] overflow-hidden font-sans text-slate-800">
-      {/* 1. Existing Sidebar */}
+      {/* 1. Sidebar (Desktop Permanent + Mobile Slide-out Drawer) */}
       <Sidebar
         currentView={currentView}
         onNavigate={onNavigate}
         currentUser={currentUser}
         onLogout={onLogout}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
         onRefresh={() => {
           fetchSummary();
           fetchHistory();
@@ -393,28 +396,39 @@ export default function DataSyncHistory({ currentView = 'sync', onNavigate, curr
 
       {/* 2. Main Scrollable Content */}
       <div className="flex-1 flex flex-col h-screen overflow-y-auto overflow-x-hidden">
-        <div className="p-7 max-w-[1550px] w-full mx-auto space-y-6">
+        <div className="p-3.5 sm:p-5 lg:p-7 max-w-[1550px] w-full mx-auto space-y-5">
           {/* Header Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-                Data Sync History
-              </h1>
-              <p className="text-slate-500 text-xs font-normal mt-0.5">
-                Track Google Sheets synchronization activity
-              </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(true)}
+                className="md:hidden p-2 rounded-xl bg-white border border-slate-200/90 text-slate-700 hover:bg-slate-100 shadow-2xs transition-colors cursor-pointer shrink-0"
+                title="Open menu"
+                aria-label="Open menu"
+              >
+                <Menu size={19} />
+              </button>
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight leading-tight truncate">
+                  Data Sync History
+                </h1>
+                <p className="text-slate-500 text-[11px] sm:text-xs font-normal mt-0.5 truncate">
+                  Track Google Sheets synchronization activity
+                </p>
+              </div>
             </div>
 
             {/* Right Controls: Date Range & User Profile */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto shrink-0">
               {/* Date Range Dropdown */}
               <div className="relative">
                 <button
                   onClick={() => setDateDropdownOpen(!dateDropdownOpen)}
-                  className="flex items-center gap-2 bg-white border border-slate-200/80 rounded-xl px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-all shadow-xs"
+                  className="flex items-center gap-2 bg-white border border-slate-200/80 rounded-xl px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-all shadow-xs cursor-pointer"
                 >
                   <Calendar size={14} className="text-slate-500" />
-                  <span>{selectedDateLabel}</span>
+                  <span className="truncate max-w-[110px] sm:max-w-none">{selectedDateLabel}</span>
                   <ChevronDown size={14} className="text-slate-400" />
                 </button>
 
@@ -428,7 +442,7 @@ export default function DataSyncHistory({ currentView = 'sync', onNavigate, curr
                           setDateDropdownOpen(false);
                           setCurrentPage(1);
                         }}
-                        className={`w-full text-left px-4 py-2 text-xs transition-colors flex items-center justify-between ${
+                        className={`w-full text-left px-4 py-2 text-xs transition-colors flex items-center justify-between cursor-pointer ${
                           dateRange === opt.value
                             ? 'bg-blue-50 text-blue-600 font-semibold'
                             : 'text-slate-700 hover:bg-slate-50'
@@ -445,7 +459,7 @@ export default function DataSyncHistory({ currentView = 'sync', onNavigate, curr
               </div>
 
               {/* User Profile Badge */}
-              <div className="flex items-center gap-2.5 bg-white border border-slate-200/80 rounded-xl px-3 py-1.5 shadow-xs">
+              <div className="flex items-center gap-2 bg-white border border-slate-200/80 rounded-xl px-2.5 py-1.5 sm:px-3 sm:py-1.5 shadow-xs">
                 <div
                   style={{ backgroundColor: currentUser?.avatar_color || '#2563eb' }}
                   className="w-7 h-7 rounded-full text-white font-semibold text-xs flex items-center justify-center shadow-xs"

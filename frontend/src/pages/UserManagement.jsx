@@ -5,7 +5,7 @@ import {
   Search, Filter, RefreshCw, AlertCircle, CheckCircle2,
   ChevronDown, ChevronLeft, ChevronRight, Eye, LogOut,
   Activity, Globe, Laptop, ArrowUpRight, ShieldAlert,
-  Info, Sparkles, Check, X, UserPlus, Trash2, Lock, ArrowLeft
+  Info, Sparkles, Check, X, UserPlus, Trash2, Lock, ArrowLeft, Menu
 } from 'lucide-react';
 import { format, formatDistanceToNow, parseISO } from 'date-fns';
 import {
@@ -151,6 +151,7 @@ export default function UserManagement({
   onLogout
 }) {
   const [activeTab, setActiveTab] = useState('directory'); // 'directory' | 'activity'
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [users, setUsers] = useState([]);
   const [summary, setSummary] = useState({
     total_users: 8,
@@ -389,32 +390,43 @@ export default function UserManagement({
 
   return (
     <div className="flex h-screen bg-[#f8fafc] overflow-hidden text-slate-800">
-      {/* Dark Sidebar */}
+      {/* Sidebar (Desktop Permanent + Mobile Slide-out Drawer) */}
       <Sidebar
         currentView={currentView}
         onNavigate={onNavigate}
         currentUser={currentUser}
         onLogout={onLogout}
         onRefresh={() => loadData(false)}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
       />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-full overflow-y-auto">
         {/* Top Navbar */}
-        <header className="bg-white border-b border-slate-200/80 px-8 py-4 shrink-0 flex items-center justify-between sticky top-0 z-20 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isAdmin ? 'bg-blue-600/10 text-blue-600' : 'bg-rose-50 text-rose-600'}`}>
+        <header className="bg-white border-b border-slate-200/80 px-4 sm:px-8 py-3 sm:py-4 shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sticky top-0 z-20 shadow-sm">
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden p-2 rounded-xl bg-white border border-slate-200/90 text-slate-700 hover:bg-slate-100 shadow-2xs transition-colors cursor-pointer shrink-0"
+              title="Open menu"
+              aria-label="Open menu"
+            >
+              <Menu size={19} />
+            </button>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${isAdmin ? 'bg-blue-600/10 text-blue-600' : 'bg-rose-50 text-rose-600'}`}>
               {isAdmin ? <Users size={22} /> : <ShieldAlert size={22} />}
             </div>
-            <div>
-              <div className="flex items-center gap-2.5">
-                <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight truncate">
                   User Management
                 </h1>
                 {isAdmin ? (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Live Heartbeat Active
+                    Live Heartbeat
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200/80">
@@ -423,16 +435,16 @@ export default function UserManagement({
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 truncate">
                 {isAdmin
-                  ? 'Real-time user presence, heartbeat tracking (30s) & 90s offline detection'
-                  : 'Restricted administrative area. Administrator authorization required.'}
+                  ? 'Real-time user presence & heartbeat tracking'
+                  : 'Restricted area. Administrator authorization required.'}
               </p>
             </div>
           </div>
 
           {/* Right Controls */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto shrink-0">
             {/* Role switch pill for demo/testing admin permissions (only visible if logged in user is actually Admin) */}
             {isActualAdmin && (
               <div className="flex items-center gap-2 bg-slate-100 rounded-xl p-1 border border-slate-200/80 text-xs">

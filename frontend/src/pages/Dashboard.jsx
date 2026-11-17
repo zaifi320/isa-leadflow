@@ -99,6 +99,7 @@ export default function Dashboard({ currentView = 'dashboard', onNavigate, curre
   const [kpis, setKpis] = useState(INITIAL_KPIS);
   const [loadingKpis, setLoadingKpis] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     fetchKPIs();
@@ -134,59 +135,68 @@ export default function Dashboard({ currentView = 'dashboard', onNavigate, curre
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#f4f7fc] text-slate-800 font-sans antialiased">
-      {/* Fixed Sidebar */}
-      <Sidebar onRefresh={handleRefresh} currentView={currentView} onNavigate={onNavigate} currentUser={currentUser} onLogout={onLogout} />
+      {/* Sidebar (Desktop Permanent + Mobile Slide-out Drawer) */}
+      <Sidebar
+        onRefresh={handleRefresh}
+        currentView={currentView}
+        onNavigate={onNavigate}
+        currentUser={currentUser}
+        onLogout={onLogout}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
+      />
 
       {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto min-w-0">
-        <div className="p-6 max-w-[1600px] mx-auto space-y-4">
+        <div className="p-3.5 sm:p-5 lg:p-6 max-w-[1600px] mx-auto space-y-4">
           {/* Header */}
           <Header
             dateRange={dateRange}
             onDateRangeChange={setDateRange}
             currentUser={currentUser}
             onLogout={onLogout}
+            onOpenMobileMenu={() => setMobileMenuOpen(true)}
           />
 
-          {/* Row 1: 6 KPI Cards in a single row */}
-          <div className="grid grid-cols-6 gap-3.5 pt-1">
+          {/* Row 1: KPI Cards (2 cols on mobile phone portrait, 3 on tablet, 6 on desktop) */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-1">
             {kpis.map((card) => (
               <KPICard key={card.id} {...card} />
             ))}
           </div>
 
           {/* Row 2: Daily Overall Trend (col-span-5) + Leads by State Table (col-span-4) */}
-          <div className="grid grid-cols-9 gap-4">
-            <div className="col-span-5 min-h-[300px]">
+          <div className="grid grid-cols-1 lg:grid-cols-9 gap-4">
+            <div className="col-span-1 lg:col-span-5 min-h-[300px]">
               <DailyTrendChart dateRange={dateRange} refreshTrigger={refreshKey} />
             </div>
-            <div className="col-span-4 min-h-[300px]">
+            <div className="col-span-1 lg:col-span-4 min-h-[300px]">
               <StateLeadsTable refreshTrigger={refreshKey} />
             </div>
           </div>
 
-          {/* Row 3: Individual Employee Trend (col-span-5) + Leads by Type (col-span-2) + Leads by Property Type (col-span-2) */}
-          <div className="grid grid-cols-9 gap-4">
-            <div className="col-span-5 min-h-[300px]">
+          {/* Row 3: Individual Employee Trend + Leads by Type + Leads by Property Type */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-9 gap-4">
+            <div className="col-span-1 sm:col-span-2 lg:col-span-5 min-h-[300px]">
               <EmployeeTrendChart dateRange={dateRange} refreshTrigger={refreshKey} />
             </div>
-            <div className="col-span-2 min-h-[300px]">
+            <div className="col-span-1 lg:col-span-2 min-h-[300px]">
               <LeadsByTypeChart dateRange={dateRange} refreshTrigger={refreshKey} />
             </div>
-            <div className="col-span-2 min-h-[300px]">
+            <div className="col-span-1 lg:col-span-2 min-h-[300px]">
               <LeadsByPropertyChart dateRange={dateRange} refreshTrigger={refreshKey} />
             </div>
           </div>
 
-          {/* Row 4: Leads by State (col-span-3) + Top Lead By (col-span-3) + Recent Leads Table (col-span-3) */}
-          <div className="grid grid-cols-9 gap-4 pb-4">
-            <div className="col-span-3 min-h-[270px]">
+          {/* Row 4: Leads by State + Top Lead By + Recent Leads Table */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-9 gap-4 pb-4">
+            <div className="col-span-1 lg:col-span-3 min-h-[270px]">
               <LeadsByStateChart dateRange={dateRange} refreshTrigger={refreshKey} />
             </div>
-            <div className="col-span-3 min-h-[270px]">
+            <div className="col-span-1 lg:col-span-3 min-h-[270px]">
               <TopLeadByChart dateRange={dateRange} refreshTrigger={refreshKey} />
             </div>
-            <div className="col-span-3 min-h-[270px]">
+            <div className="col-span-1 sm:col-span-2 lg:col-span-3 min-h-[270px]">
               <RecentLeadsTable dateRange={dateRange} refreshTrigger={refreshKey} />
             </div>
           </div>

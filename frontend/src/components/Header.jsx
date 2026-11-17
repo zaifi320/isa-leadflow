@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calendar, ChevronDown, BarChart2 } from 'lucide-react';
+import { Calendar, ChevronDown, BarChart2, Menu } from 'lucide-react';
 import { userLogout } from '../api/dashboard';
 
 const dateRangeOptions = [
@@ -10,7 +10,15 @@ const dateRangeOptions = [
   { value: 'custom', label: 'Custom Date Range' },
 ];
 
-export default function Header({ dateRange, onDateRangeChange, currentUser, onLogout }) {
+export default function Header({
+  dateRange,
+  onDateRangeChange,
+  currentUser,
+  onLogout,
+  onOpenMobileMenu,
+  title = "Dashboard",
+  subtitle = "Overview of ISA LeadFlow leads and performance"
+}) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
@@ -27,32 +35,48 @@ export default function Header({ dateRange, onDateRangeChange, currentUser, onLo
   const selectedLabel = dateRangeOptions.find(o => o.value === dateRange)?.label || 'Last 30 Days';
 
   return (
-    <div className="flex items-center justify-between pb-1">
-      {/* Page Title */}
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-blue-600/10 flex items-center justify-center text-blue-600">
-          <BarChart2 size={24} className="text-blue-600" />
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
+      {/* Page Title & Mobile Menu Trigger */}
+      <div className="flex items-center gap-3 min-w-0">
+        {onOpenMobileMenu && (
+          <button
+            type="button"
+            onClick={onOpenMobileMenu}
+            className="md:hidden p-2 rounded-xl bg-white border border-slate-200/90 text-slate-700 hover:bg-slate-100 shadow-2xs transition-colors cursor-pointer shrink-0"
+            title="Open menu"
+            aria-label="Open menu"
+          >
+            <Menu size={19} />
+          </button>
+        )}
+
+        <div className="w-10 h-10 rounded-xl bg-blue-600/10 flex items-center justify-center text-blue-600 shrink-0">
+          <BarChart2 size={22} className="text-blue-600" />
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight leading-tight">Dashboard</h1>
-          <p className="text-slate-500 text-xs font-normal mt-0.5">Overview of ISA LeadFlow leads and performance</p>
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight leading-tight truncate">
+            {title}
+          </h1>
+          <p className="text-slate-500 text-[11px] sm:text-xs font-normal mt-0.5 truncate">
+            {subtitle}
+          </p>
         </div>
       </div>
 
       {/* Right Actions */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto shrink-0">
         {/* Date Range Dropdown */}
         <div className="relative">
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-2 bg-white border border-slate-200/80 rounded-xl px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-all shadow-sm"
+            className="flex items-center gap-2 bg-white border border-slate-200/80 rounded-xl px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-all shadow-xs cursor-pointer"
           >
             <Calendar size={14} className="text-slate-500" />
-            <span>{selectedLabel}</span>
+            <span className="truncate max-w-[110px] sm:max-w-none">{selectedLabel}</span>
             <ChevronDown size={14} className="text-slate-400" />
           </button>
           {dropdownOpen && (
-            <div className="absolute right-0 top-full mt-1.5 w-48 bg-white border border-slate-200 rounded-xl shadow-xl z-20 py-1 overflow-hidden">
+            <div className="absolute right-0 top-full mt-1.5 w-48 bg-white border border-slate-200 rounded-xl shadow-xl z-30 py-1 overflow-hidden">
               {dateRangeOptions.map((opt) => (
                 <button
                   key={opt.value}
@@ -60,7 +84,7 @@ export default function Header({ dateRange, onDateRangeChange, currentUser, onLo
                     onDateRangeChange(opt.value);
                     setDropdownOpen(false);
                   }}
-                  className={`w-full text-left px-4 py-2.5 text-xs transition-colors flex items-center justify-between ${
+                  className={`w-full text-left px-4 py-2.5 text-xs transition-colors flex items-center justify-between cursor-pointer ${
                     dateRange === opt.value
                       ? 'bg-blue-50 text-blue-600 font-semibold'
                       : 'text-slate-700 hover:bg-slate-50'
@@ -78,26 +102,25 @@ export default function Header({ dateRange, onDateRangeChange, currentUser, onLo
         <div className="relative">
           <button
             onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-            className="flex items-center gap-2.5 bg-white border border-slate-200/80 rounded-xl px-3 py-1.5 hover:bg-slate-50 transition-all shadow-sm"
+            className="flex items-center gap-2 bg-white border border-slate-200/80 rounded-xl px-2.5 py-1.5 sm:px-3 sm:py-1.5 hover:bg-slate-50 transition-all shadow-xs cursor-pointer"
           >
             <div
               style={{ backgroundColor: avatarBg }}
-              className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-xs shrink-0"
             >
               {userInitials}
             </div>
-            <span className="text-xs font-semibold text-slate-800">{userName}</span>
+            <span className="hidden sm:inline text-xs font-semibold text-slate-800 truncate max-w-[120px]">
+              {userName}
+            </span>
             <ChevronDown size={14} className="text-slate-400" />
           </button>
           {userDropdownOpen && (
-            <div className="absolute right-0 top-full mt-1.5 w-44 bg-white border border-slate-200 rounded-xl shadow-xl z-20 py-1 overflow-hidden text-xs">
+            <div className="absolute right-0 top-full mt-1.5 w-48 bg-white border border-slate-200 rounded-xl shadow-xl z-30 py-1 overflow-hidden text-xs">
               <div className="px-4 py-2 border-b border-slate-100">
-                <div className="font-semibold text-slate-800">{userName}</div>
-                <div className="text-slate-400 text-[10px]">{userRole}</div>
+                <div className="font-semibold text-slate-800 truncate">{userName}</div>
+                <div className="text-slate-400 text-[10px] truncate">{userRole}</div>
               </div>
-              <button className="w-full text-left px-4 py-2 text-slate-700 hover:bg-slate-50">Profile Settings</button>
-              <button className="w-full text-left px-4 py-2 text-slate-700 hover:bg-slate-50">User Preferences</button>
-              <div className="border-t border-slate-100 my-1"></div>
               <button
                 onClick={async () => {
                   setUserDropdownOpen(false);
@@ -107,7 +130,7 @@ export default function Header({ dateRange, onDateRangeChange, currentUser, onLo
                     await userLogout({ user_id: currentUser?.id || 1, email: currentUser?.email || 'huzaifa@isaleads.com' });
                   }
                 }}
-                className="w-full text-left px-4 py-2 text-rose-600 hover:bg-rose-50 font-medium transition-colors cursor-pointer"
+                className="w-full text-left px-4 py-2.5 text-rose-600 hover:bg-rose-50 font-medium transition-colors cursor-pointer flex items-center gap-2"
               >
                 Log out
               </button>

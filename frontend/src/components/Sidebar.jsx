@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   LayoutGrid, Users, CalendarCheck, RefreshCw,
-  Settings, UserCog, Home, Lock, LogOut
+  Settings, UserCog, Home, Lock, LogOut, X
 } from 'lucide-react';
 import { getLastSync, triggerSync } from '../api/dashboard';
 import { format } from 'date-fns';
@@ -18,7 +18,15 @@ const bottomNavItems = [
   { id: 'users', label: 'User Management', icon: UserCog },
 ];
 
-export default function Sidebar({ onRefresh, currentView = 'dashboard', onNavigate, currentUser, onLogout }) {
+export default function Sidebar({
+  onRefresh,
+  currentView = 'dashboard',
+  onNavigate,
+  currentUser,
+  onLogout,
+  mobileOpen = false,
+  onMobileClose,
+}) {
   const isAdmin = currentUser?.role?.toLowerCase() === 'admin';
   const visibleNavItems = navItems.filter((item) => {
     // Data sync history section only shows to admins and completely hidden from others
@@ -97,32 +105,40 @@ export default function Sidebar({ onRefresh, currentView = 'dashboard', onNaviga
     ? format(new Date(lastSync.sync_time), "MMM dd, yyyy '•' h:mm a")
     : 'Just now';
 
-  return (
-    <aside
-      className="flex flex-col h-screen select-none shrink-0 relative overflow-hidden"
-      style={{
-        width: '240px',
-        minWidth: '240px',
-        background: 'linear-gradient(180deg, #2248ce 0%, #1c3bb8 40%, #17329f 80%, #132785 100%)',
-      }}
-    >
+  const renderSidebarContent = (isMobile = false) => (
+    <>
       {/* Logo & Brand Header */}
-      <div className="px-5 pt-6 pb-5">
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-cyan-400/35 via-blue-400/25 to-blue-600/40 border border-cyan-300/40 backdrop-blur-md flex items-center justify-center shadow-lg shadow-blue-950/40 shrink-0">
-            <Home size={22} className="text-white drop-shadow-xs" strokeWidth={2.2} />
+      <div className="px-5 pt-5 pb-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-cyan-400/35 via-blue-400/25 to-blue-600/40 border border-cyan-300/40 backdrop-blur-md flex items-center justify-center shadow-lg shadow-blue-950/40 shrink-0">
+              <Home size={22} className="text-white drop-shadow-xs" strokeWidth={2.2} />
+            </div>
+            <div className="min-w-0">
+              <div className="text-white font-bold text-base tracking-tight leading-tight truncate">
+                ISA LeadFlow
+              </div>
+              <div className="text-blue-200/85 text-[11px] leading-tight mt-1 font-normal truncate">
+                From Discord to Dashboard
+              </div>
+              <div className="text-blue-200/85 text-[11px] leading-tight font-normal">
+                Analytics.
+              </div>
+            </div>
           </div>
-          <div className="min-w-0">
-            <div className="text-white font-bold text-base tracking-tight leading-tight">
-              ISA LeadFlow
-            </div>
-            <div className="text-blue-200/85 text-[11px] leading-tight mt-1 font-normal">
-              From Discord to Dashboard
-            </div>
-            <div className="text-blue-200/85 text-[11px] leading-tight font-normal">
-              Analytics.
-            </div>
-          </div>
+
+          {/* Close Button on Mobile Drawer */}
+          {isMobile && onMobileClose && (
+            <button
+              type="button"
+              onClick={onMobileClose}
+              className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/15 transition-colors cursor-pointer shrink-0 ml-2"
+              title="Close Menu"
+              aria-label="Close Menu"
+            >
+              <X size={20} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -137,6 +153,7 @@ export default function Sidebar({ onRefresh, currentView = 'dashboard', onNaviga
               onClick={() => {
                 setInternalActive(item.id);
                 if (onNavigate) onNavigate(item.id);
+                if (isMobile && onMobileClose) onMobileClose();
               }}
               className={`relative w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-medium transition-all cursor-pointer group ${
                 isActive
@@ -170,6 +187,7 @@ export default function Sidebar({ onRefresh, currentView = 'dashboard', onNaviga
               onClick={() => {
                 setInternalActive(item.id);
                 if (onNavigate) onNavigate(item.id);
+                if (isMobile && onMobileClose) onMobileClose();
               }}
               className={`relative w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-medium transition-all cursor-pointer group ${
                 isActive
@@ -207,6 +225,7 @@ export default function Sidebar({ onRefresh, currentView = 'dashboard', onNaviga
         <button
           onClick={() => {
             if (onLogout) onLogout();
+            if (isMobile && onMobileClose) onMobileClose();
           }}
           className="relative w-full flex items-center gap-3.5 px-4 py-2.5 rounded-2xl text-xs font-medium text-blue-200/75 hover:text-white hover:bg-white/10 transition-all cursor-pointer mt-1 group"
         >
@@ -248,6 +267,42 @@ export default function Sidebar({ onRefresh, currentView = 'dashboard', onNaviga
           </div>
         </div>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* 1. Desktop Permanent Sidebar (Hidden on mobile < md) */}
+      <aside
+        className="hidden md:flex flex-col h-screen select-none shrink-0 relative overflow-hidden"
+        style={{
+          width: '240px',
+          minWidth: '240px',
+          background: 'linear-gradient(180deg, #2248ce 0%, #1c3bb8 40%, #17329f 80%, #132785 100%)',
+        }}
+      >
+        {renderSidebarContent(false)}
+      </aside>
+
+      {/* 2. Mobile Drawer (Only visible on small screens when mobileOpen is true) */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex animate-fadeIn">
+          {/* Dark Backdrop */}
+          <div
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity cursor-pointer"
+            onClick={onMobileClose}
+          />
+          {/* Sliding Royal Blue Drawer */}
+          <aside
+            className="relative flex flex-col h-full select-none z-10 w-[270px] max-w-[85vw] shadow-2xl animate-slideRight"
+            style={{
+              background: 'linear-gradient(180deg, #2248ce 0%, #1c3bb8 40%, #17329f 80%, #132785 100%)',
+            }}
+          >
+            {renderSidebarContent(true)}
+          </aside>
+        </div>
+      )}
+    </>
   );
 }

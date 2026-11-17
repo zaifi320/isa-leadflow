@@ -4,7 +4,7 @@ import {
   Phone, Calendar, CalendarCheck, Ban, Clock, Users,
   BarChart2, PieChart as PieIcon, List, ChevronDown,
   ArrowUp, ArrowRight, Eye, X, PhoneCall, Mail, MapPin,
-  Home, DollarSign, CheckCircle2, Copy, Check
+  Home, DollarSign, CheckCircle2, Copy, Check, Menu
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
@@ -264,6 +264,7 @@ export default function CallAnalytics({ currentView = 'analytics', onNavigate, c
   const [dateDropdownOpen, setDateDropdownOpen] = useState(false);
   const [trendActiveFilter, setTrendActiveFilter] = useState('30 Days');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Data states
   const [kpis, setKpis] = useState(INITIAL_KPIS);
@@ -453,35 +454,54 @@ export default function CallAnalytics({ currentView = 'analytics', onNavigate, c
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#f4f7fc] text-slate-800 font-sans antialiased">
-      {/* Fixed Sidebar */}
-      <Sidebar onRefresh={handleRefresh} currentView={currentView} onNavigate={onNavigate} currentUser={currentUser} onLogout={onLogout} />
+      {/* Sidebar (Desktop Permanent + Mobile Slide-out Drawer) */}
+      <Sidebar
+        onRefresh={handleRefresh}
+        currentView={currentView}
+        onNavigate={onNavigate}
+        currentUser={currentUser}
+        onLogout={onLogout}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
+      />
 
       {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto min-w-0">
-        <div className="p-6 max-w-[1600px] mx-auto space-y-4">
+        <div className="p-3.5 sm:p-5 lg:p-6 max-w-[1600px] mx-auto space-y-4">
           
           {/* Header Bar */}
-          <div className="flex items-center justify-between pb-1">
-            {/* Title & Subtitle */}
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight leading-tight">
-                Call Analytics
-              </h1>
-              <p className="text-slate-500 text-xs font-normal mt-0.5">
-                Analyze call appointments and lead engagement
-              </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
+            {/* Title & Subtitle + Mobile Menu Button */}
+            <div className="flex items-center gap-3 min-w-0">
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(true)}
+                className="md:hidden p-2 rounded-xl bg-white border border-slate-200/90 text-slate-700 hover:bg-slate-100 shadow-2xs transition-colors cursor-pointer shrink-0"
+                title="Open menu"
+                aria-label="Open menu"
+              >
+                <Menu size={19} />
+              </button>
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight leading-tight truncate">
+                  Call Analytics
+                </h1>
+                <p className="text-slate-500 text-[11px] sm:text-xs font-normal mt-0.5 truncate">
+                  Analyze call appointments and lead engagement
+                </p>
+              </div>
             </div>
 
             {/* Right Controls: Date Range & User Profile */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto shrink-0">
               {/* Date Range Dropdown */}
               <div className="relative">
                 <button
                   onClick={() => setDateDropdownOpen(!dateDropdownOpen)}
-                  className="flex items-center gap-2 bg-white border border-slate-200/80 rounded-xl px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-all shadow-sm"
+                  className="flex items-center gap-2 bg-white border border-slate-200/80 rounded-xl px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
                 >
                   <Calendar size={14} className="text-slate-500" />
-                  <span>{selectedDateLabel}</span>
+                  <span className="truncate max-w-[110px] sm:max-w-none">{selectedDateLabel}</span>
                   <ChevronDown size={14} className="text-slate-400" />
                 </button>
 
@@ -494,7 +514,7 @@ export default function CallAnalytics({ currentView = 'analytics', onNavigate, c
                           setDateRange(opt.value);
                           setDateDropdownOpen(false);
                         }}
-                        className={`w-full text-left px-4 py-2.5 text-xs transition-colors flex items-center justify-between ${
+                        className={`w-full text-left px-4 py-2.5 text-xs transition-colors flex items-center justify-between cursor-pointer ${
                           dateRange === opt.value
                             ? 'bg-blue-50 text-blue-600 font-semibold'
                             : 'text-slate-700 hover:bg-slate-50'
@@ -509,18 +529,18 @@ export default function CallAnalytics({ currentView = 'analytics', onNavigate, c
               </div>
 
               {/* User Profile Pill */}
-              <div className="flex items-center gap-2.5 bg-white border border-slate-200/80 rounded-xl px-3 py-1.5 shadow-sm">
+              <div className="flex items-center gap-2 bg-white border border-slate-200/80 rounded-xl px-2.5 py-1.5 sm:px-3 sm:py-1.5 shadow-sm">
                 <div
                   style={{ backgroundColor: currentUser?.avatar_color || '#2563eb' }}
-                  className="w-7 h-7 rounded-full text-white font-semibold text-xs flex items-center justify-center"
+                  className="w-7 h-7 rounded-full text-white font-semibold text-xs flex items-center justify-center shrink-0"
                 >
                   {(currentUser?.name || 'Huzaifa Saeed').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()}
                 </div>
-                <div className="text-left text-xs">
-                  <div className="font-semibold text-slate-800 leading-tight">
+                <div className="hidden sm:block text-left text-xs truncate max-w-[120px]">
+                  <div className="font-semibold text-slate-800 leading-tight truncate">
                     {currentUser?.name || 'Huzaifa Saeed'}
                   </div>
-                  <div className="text-[10px] text-slate-400">
+                  <div className="text-[10px] text-slate-400 truncate">
                     {currentUser?.role === 'Admin' ? 'Administrator' : (currentUser?.role || 'Sales Agent')}
                   </div>
                 </div>
@@ -528,17 +548,17 @@ export default function CallAnalytics({ currentView = 'analytics', onNavigate, c
             </div>
           </div>
 
-          {/* Row 1: 5 KPI Cards in a single row */}
-          <div className="grid grid-cols-5 gap-3.5 pt-1">
+          {/* Row 1: KPI Cards (2 on phone, 3 on tablet, 5 on desktop) */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pt-1">
             {kpis.map((card) => (
               <CallAnalyticsKPICard key={card.id} card={card} />
             ))}
           </div>
 
-          {/* Row 2: Call Appointment Trend (col-span-8) + Lead By Analysis (col-span-4) */}
-          <div className="grid grid-cols-12 gap-4">
+          {/* Row 2: Call Appointment Trend + Lead By Analysis */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             {/* Call Appointment Trend Area Chart */}
-            <div className="col-span-8 bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
+            <div className="col-span-1 lg:col-span-8 bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
               {/* Header with Title and Range Filters */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2.5">
@@ -632,7 +652,7 @@ export default function CallAnalytics({ currentView = 'analytics', onNavigate, c
             </div>
 
             {/* Lead By Analysis Donut Chart */}
-            <div className="col-span-4 bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
+            <div className="col-span-1 lg:col-span-4 bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
               {/* Header */}
               <div className="flex items-center gap-2.5 mb-2">
                 <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
@@ -704,10 +724,10 @@ export default function CallAnalytics({ currentView = 'analytics', onNavigate, c
           </div>
 
           {/* Row 3: 3 Cards (Distribution + Leads by State + Top Agents) */}
-          <div className="grid grid-cols-12 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
             
             {/* Card 1: Call Appointment Time Distribution */}
-            <div className="col-span-4 bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
+            <div className="col-span-1 md:col-span-1 lg:col-span-4 bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
               {/* Header */}
               <div className="flex items-center gap-2.5 mb-2">
                 <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
@@ -776,7 +796,7 @@ export default function CallAnalytics({ currentView = 'analytics', onNavigate, c
             </div>
 
             {/* Card 2: Leads by State Bar Chart */}
-            <div className="col-span-4 bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
+            <div className="col-span-1 md:col-span-1 lg:col-span-4 bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
               {/* Header */}
               <div className="flex items-center gap-2.5 mb-2">
                 <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
@@ -830,7 +850,7 @@ export default function CallAnalytics({ currentView = 'analytics', onNavigate, c
             </div>
 
             {/* Card 3: Top Agents by Call Appointments Horizontal Bars */}
-            <div className="col-span-4 bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
+            <div className="col-span-1 md:col-span-2 lg:col-span-4 bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
               {/* Header */}
               <div className="flex items-center gap-2.5 mb-3">
                 <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">

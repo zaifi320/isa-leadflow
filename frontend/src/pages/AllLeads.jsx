@@ -4,7 +4,7 @@ import {
   Search, RefreshCw, Download, Filter, Eye, X, ChevronDown,
   ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight,
   List, LayoutGrid, Phone, Mail, MapPin, Calendar, DollarSign,
-  User, Home, Briefcase, FileText, CheckCircle2, AlertCircle, Copy, Check, Lock
+  User, Home, Briefcase, FileText, CheckCircle2, AlertCircle, Copy, Check, Lock, Menu
 } from 'lucide-react';
 import { getAllLeads, getFilterOptions, getExportUrl } from '../api/dashboard';
 import { format, parseISO } from 'date-fns';
@@ -37,6 +37,7 @@ export default function AllLeads({ currentView = 'leads', onNavigate, currentUse
   const [dateRange, setDateRange] = useState('30d');
   const [dateDropdownOpen, setDateDropdownOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Search and filters
   const [searchInput, setSearchInput] = useState('');
@@ -249,31 +250,44 @@ export default function AllLeads({ currentView = 'leads', onNavigate, currentUse
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#f4f7fc] text-slate-800 font-sans antialiased">
-      {/* Fixed Sidebar */}
+      {/* Sidebar (Desktop Permanent + Mobile Slide-out Drawer) */}
       <Sidebar
         currentView={currentView}
         onNavigate={onNavigate}
         onRefresh={fetchLeads}
         currentUser={currentUser}
         onLogout={onLogout}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
       />
 
       {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto min-w-0">
-        <div className="p-6 max-w-[1720px] mx-auto space-y-4">
+        <div className="p-3.5 sm:p-5 lg:p-6 max-w-[1720px] mx-auto space-y-4">
           {/* Header Row */}
-          <div className="flex items-center justify-between pb-1">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight leading-tight">
-                All Leads
-              </h1>
-              <p className="text-slate-500 text-xs font-normal mt-0.5">
-                Browse and manage all ISA LeadFlow leads from Google Sheets
-              </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
+            <div className="flex items-center gap-3 min-w-0">
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(true)}
+                className="md:hidden p-2 rounded-xl bg-white border border-slate-200/90 text-slate-700 hover:bg-slate-100 shadow-2xs transition-colors cursor-pointer shrink-0"
+                title="Open menu"
+                aria-label="Open menu"
+              >
+                <Menu size={19} />
+              </button>
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight leading-tight truncate">
+                  All Leads
+                </h1>
+                <p className="text-slate-500 text-[11px] sm:text-xs font-normal mt-0.5 truncate">
+                  Browse and manage all ISA LeadFlow leads from Google Sheets
+                </p>
+              </div>
             </div>
 
             {/* Right Actions */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto shrink-0">
               {/* Date Range Dropdown */}
               <div className="relative">
                 <button
@@ -325,7 +339,7 @@ export default function AllLeads({ currentView = 'leads', onNavigate, currentUse
                   >
                     {(currentUser?.name || 'Huzaifa Saeed').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()}
                   </div>
-                  <span className="text-xs font-semibold text-slate-800">
+                  <span className="hidden sm:inline text-xs font-semibold text-slate-800">
                     {currentUser?.name || 'Huzaifa Saeed'}
                   </span>
                   <ChevronDown size={14} className="text-slate-400" />
