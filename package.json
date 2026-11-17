@@ -1,0 +1,10 @@
+{
+  "name": "isa-leadflow",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "npm --prefix frontend install && npm --prefix frontend run build",
+    "start": "uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}"
+  }
+}
+

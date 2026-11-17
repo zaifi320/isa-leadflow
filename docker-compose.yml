@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - GOOGLE_SHEETS_ID=${GOOGLE_SHEETS_ID:-1Icznd3xhx8hEdJFH-VsdqFPsYqeoixGQlv9L6TaH5so}
+      - SECRET_KEY=${SECRET_KEY:-change-this-to-a-random-secret-key}
+      - PORT=8000
+    env_file:
+      - .env
+    restart: unless-stopped
+

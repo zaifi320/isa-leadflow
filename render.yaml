@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: isa-leadflow
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: ohio
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: GOOGLE_SHEETS_ID
+        value: 1Icznd3xhx8hEdJFH-VsdqFPsYqeoixGQlv9L6TaH5so
+      - key: SECRET_KEY
+        generateValue: true
