@@ -222,7 +222,7 @@ def get_recent_leads(db: Session, limit: int = 5) -> List[schemas.LeadResponse]:
 
 
 def get_last_sync(db: Session) -> Optional[schemas.SyncHistoryResponse]:
-    row = db.query(models.SyncHistory).order_by(models.SyncHistory.sync_time.desc()).first()
+    row = db.query(models.SyncHistory).order_by(models.SyncHistory.id.desc()).first()
     if row:
         return schemas.SyncHistoryResponse.model_validate(row)
     return None

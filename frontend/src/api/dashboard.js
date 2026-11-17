@@ -66,7 +66,12 @@ export const getRecentLeads = (params) => cachedGet(`${BASE_URL}/recent-leads`, 
 export const getEmployees = () => cachedGet(`${BASE_URL}/employees`, {}, 600000);
 export const getEmployeeTrend = (params) => cachedGet(`${BASE_URL}/employee-trend`, params);
 export const getLeadsByStateTable = () => cachedGet(`${BASE_URL}/leads-by-state-table`, {}, 600000);
-export const getLastSync = () => cachedGet(`${BASE_URL}/last-sync`, {}, 15000);
+export const getLastSync = (forceFresh = false) => {
+  if (forceFresh) {
+    return axios.get(`${BASE_URL}/last-sync?_t=${Date.now()}`);
+  }
+  return cachedGet(`${BASE_URL}/last-sync`, {}, 15000);
+};
 
 // Dedicated 60s timeout for Google Sheets download and database ingest
 export const triggerSync = async () => {

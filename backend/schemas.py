@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_serializer
 from typing import Optional, List
 from datetime import datetime
 
@@ -98,6 +98,14 @@ class SyncHistoryResponse(BaseModel):
 
     model_config = {"from_attributes": True}
 
+    @field_serializer("sync_time", "start_time", "end_time", when_used="json")
+    def serialize_dt(self, dt: Optional[datetime]) -> Optional[str]:
+        if dt is None:
+            return None
+        if dt.tzinfo is None:
+            return dt.isoformat() + "Z"
+        return dt.isoformat()
+
 
 class SyncSummaryResponse(BaseModel):
     last_successful_sync: Optional[datetime] = None
@@ -110,6 +118,16 @@ class SyncSummaryResponse(BaseModel):
     latest_new_leads: int = 0
     latest_updated_leads: int = 0
     avg_duration_seconds: float = 0.0
+
+    model_config = {"from_attributes": True}
+
+    @field_serializer("last_successful_sync", when_used="json")
+    def serialize_last_sync(self, dt: Optional[datetime]) -> Optional[str]:
+        if dt is None:
+            return None
+        if dt.tzinfo is None:
+            return dt.isoformat() + "Z"
+        return dt.isoformat()
 
 
 class SyncHistoryPagination(BaseModel):

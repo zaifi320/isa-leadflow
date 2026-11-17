@@ -5,7 +5,7 @@ import io
 import time
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional, List
 import requests
 from sqlalchemy.orm import Session
@@ -108,7 +108,7 @@ def fetch_from_public_csv(sheet_id: str) -> List[Dict[str, Any]]:
 
 def ingest_records(db: Session, records: List[Dict[str, Any]], source_label: str, start_time: Optional[datetime] = None) -> Dict[str, Any]:
     if not start_time:
-        start_time = datetime.now()
+        start_time = datetime.now(timezone.utc).replace(tzinfo=None)
 
     auto_id_counter = 1
 
@@ -219,7 +219,7 @@ def ingest_records(db: Session, records: List[Dict[str, Any]], source_label: str
         db.add_all(new_leads)
     db.commit()
 
-    end_time = datetime.now()
+    end_time = datetime.now(timezone.utc).replace(tzinfo=None)
     duration_sec = round(max((end_time - start_time).total_seconds(), 0.1), 2)
     total_in_db = db.query(models.Lead).count()
     new_added = len(new_leads)
@@ -250,6 +250,7 @@ def ingest_records(db: Session, records: List[Dict[str, Any]], source_label: str
         "new_leads_added": new_added,
         "updated_leads": updated_count,
         "duration_seconds": duration_sec,
+        "sync_time": end_time.isoformat() + "Z",
     }
 
 

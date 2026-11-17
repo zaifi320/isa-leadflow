@@ -31,11 +31,11 @@ def get_sync_summary(db: Session = Depends(get_db)):
     # Last successful sync
     last_success = db.query(models.SyncHistory).filter(
         models.SyncHistory.status.in_(["success", "Success"])
-    ).order_by(models.SyncHistory.sync_time.desc()).first()
+    ).order_by(models.SyncHistory.id.desc()).first()
 
     # Most recent sync overall
     latest_sync = db.query(models.SyncHistory).order_by(
-        models.SyncHistory.sync_time.desc()
+        models.SyncHistory.id.desc()
     ).first()
 
     # Sum of new leads and updated leads
@@ -102,7 +102,7 @@ def get_sync_history(
     total_pages = max(1, (total + limit - 1) // limit)
     offset = (page - 1) * limit
 
-    rows = q.order_by(models.SyncHistory.sync_time.desc()).offset(offset).limit(limit).all()
+    rows = q.order_by(models.SyncHistory.id.desc()).offset(offset).limit(limit).all()
 
     items = []
     for r in rows:

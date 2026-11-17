@@ -313,7 +313,10 @@ export default function DataSyncHistory({ currentView = 'sync', onNavigate, curr
   const formatDate = (val) => {
     if (!val) return '—';
     try {
-      const d = typeof val === 'string' ? parseISO(val) : new Date(val);
+      const dateStr = (typeof val === 'string' && !val.endsWith('Z') && !val.includes('+'))
+        ? `${val}Z`
+        : val;
+      const d = typeof dateStr === 'string' ? parseISO(dateStr) : new Date(dateStr);
       return format(d, 'MMM dd, yyyy hh:mm a');
     } catch {
       return String(val);
@@ -323,7 +326,10 @@ export default function DataSyncHistory({ currentView = 'sync', onNavigate, curr
   const formatShortDate = (val) => {
     if (!val) return '—';
     try {
-      const d = typeof val === 'string' ? parseISO(val) : new Date(val);
+      const dateStr = (typeof val === 'string' && !val.endsWith('Z') && !val.includes('+'))
+        ? `${val}Z`
+        : val;
+      const d = typeof dateStr === 'string' ? parseISO(dateStr) : new Date(dateStr);
       return format(d, 'MMM dd, hh:mm a');
     } catch {
       return String(val);

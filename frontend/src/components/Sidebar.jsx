@@ -44,11 +44,14 @@ export default function Sidebar({
     fetchLastSync();
   }, []);
 
-  const fetchLastSync = async () => {
+  const fetchLastSync = async (forceFresh = false) => {
     try {
-      const res = await getLastSync();
-      if (res.data) setLastSync(res.data);
-      else setLastSync({ sync_time: new Date().toISOString() });
+      const res = await getLastSync(forceFresh);
+      if (res?.data?.sync_time) {
+        setLastSync(res.data);
+      } else {
+        setLastSync({ sync_time: new Date().toISOString() });
+      }
     } catch {
       setLastSync({ sync_time: new Date().toISOString() });
     }
@@ -75,7 +78,11 @@ export default function Sidebar({
           setSyncFeedback('Up to date');
         }
 
-        await fetchLastSync();
+        if (res.data.sync_time) {
+          setLastSync((prev) => ({ ...(prev || {}), sync_time: res.data.sync_time }));
+        }
+
+        await fetchLastSync(true);
 
         if (onRefresh) onRefresh();
 
@@ -101,9 +108,20 @@ export default function Sidebar({
     }
   };
 
-  const syncDate = lastSync?.sync_time
-    ? format(new Date(lastSync.sync_time), "MMM dd, yyyy '•' h:mm a")
-    : 'Just now';
+  const syncDate = (() => {
+    if (!lastSync?.sync_time) return 'Just now';
+    try {
+      const timeStr = lastSync.sync_time;
+      const isoStr = (typeof timeStr === 'string' && !timeStr.endsWith('Z') && !timeStr.includes('+'))
+        ? `${timeStr}Z`
+        : timeStr;
+      const d = new Date(isoStr);
+      if (isNaN(d.getTime())) return 'Just now';
+      return format(d, "MMM dd, yyyy '•' h:mm a");
+    } catch {
+      return 'Just now';
+    }
+  })();
 
   const renderSidebarContent = (isMobile = false) => (
     <>
