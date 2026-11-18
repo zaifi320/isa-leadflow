@@ -161,7 +161,7 @@ export default function Sidebar({
       </div>
 
       {/* Main Navigation */}
-      <nav className="flex-1 px-3 py-2 space-y-1.5 overflow-y-auto">
+      <nav className="flex-1 px-3 py-2 space-y-1.5 overflow-y-auto glass-scrollbar">
         {visibleNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeItem === item.id;
